@@ -1,5 +1,6 @@
 package myBlog.storage;
 
+import myBlog.exception.PostNotFoundException;
 import myBlog.ifS.PostStorage;
 import myBlog.model.Post;
 
@@ -39,10 +40,12 @@ public class PostStorageimpl implements PostStorage {
     }
 
     @Override
-    public void searchPostsByKeyword(String keyword) {
+    public void searchPostsByKeyword(String keyword) throws PostNotFoundException {
         for (int i = 0; i < size; i++) {
-            if (posts[i].getTitle().contains(keyword) || posts[i].getText().contains(keyword)){
+            if (posts[i].getTitle().contains(keyword) || posts[i].getText().contains(keyword)) {
                 System.out.println(posts[i]);
+            }else {
+                throw new PostNotFoundException("There is no mail with such a word");
             }
         }
     }
@@ -55,10 +58,12 @@ public class PostStorageimpl implements PostStorage {
     }
 
     @Override
-    public void printPostsByCategory(String category) {
+    public void printPostsByCategory(String category) throws PostNotFoundException {
         for (int i = 0; i < size; i++) {
-            if (posts[i].getCategory().equals(category)){
+            if (posts[i].getCategory().equals(category)) {
                 System.out.println(posts[i]);
+            }else {
+                throw  new PostNotFoundException("Wrong Category!");
             }
         }
     }

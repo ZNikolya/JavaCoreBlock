@@ -22,7 +22,7 @@ public class RunBlog implements Commands {
             int command;
             try {
                 command = Integer.parseInt(commandStr);
-            } catch (NullPointerException e){
+            } catch (Exception e) {
                 command = -1;
             }
 
@@ -38,6 +38,7 @@ public class RunBlog implements Commands {
                     searchpost();
                     break;
                 case POST_BY_CATEGORY:
+                    postByCategory();
                     break;
                 case ALL_POST:
                     postStorageimpl.printAllPosts();
@@ -49,25 +50,52 @@ public class RunBlog implements Commands {
         }
     }
 
+    private static void postByCategory() {
+        System.out.println("Please input Post category");
+        try {
+            String category = scanner.nextLine();
+            postStorageimpl.printPostsByCategory(category);
+        }catch (PostNotFoundException e){
+            System.out.println(e.getMessage());
+            postByCategory();
+        }
+    }
+
     private static void searchpost() {
         System.out.println("Write the word you want to search for");
-        String search = scanner.nextLine();
-        if (postStorageimpl.getPostByTitle(search).getTitle().equals(search)){
-
-        }else postStorageimpl.searchPostsByKeyword(search);
+        try {
+            String search = scanner.nextLine();
+            postStorageimpl.searchPostsByKeyword(search);
+        }catch (PostNotFoundException e){
+            System.out.println(e.getMessage());
+            searchpost();
+        }
     }
 
     private static void addPost() {
-            System.out.println("Please input post date: title,text,category");
+        try {
+            System.out.println("Please input Post data: title,text,category");
             String postDataStr = scanner.nextLine();
-            String [] postData = postDataStr.split(",");
-        Date date = new Date();
-        post.setTitle(postData[0]);
-        post.setText(postData[1]);
-        post.setCategory(postData[2]);
-        post.setCreatedData(date);
-        postStorageimpl.add(post);
-        System.out.println("Thank you, Post was added");
+            String[] postData = postDataStr.split(",");
+            Post byTitle = postStorageimpl.getPostByTitle(postData[0]);
+            if (byTitle != null) {
+                System.out.println("Duplicate Title");
+                addPost();
+            } else {
+                Post post = new Post();
+                Date date = new Date();
+                post.setTitle(postData[0]);
+                post.setText(postData[1]);
+                post.setCategory(postData[2]);
+                post.setCreatedData(date);
+                postStorageimpl.add(post);
+                System.out.println("Thank you, Post was added");
+
+            }
+        } catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("Invalid Data! please try again");
+            addPost();
+        }
     }
 
     private static void printCommands() {
@@ -77,4 +105,4 @@ public class RunBlog implements Commands {
         System.out.println("Please input " + POST_BY_CATEGORY + " for PRINT_POSTS_BY_CATEGORY");
         System.out.println("Please input " + ALL_POST + " for PRINT_ALL_POSTS");
     }
-    }
+}

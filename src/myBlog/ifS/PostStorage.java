@@ -1,5 +1,6 @@
 package myBlog.ifS;
 
+import myBlog.exception.PostNotFoundException;
 import myBlog.model.Post;
 
 public interface PostStorage {
@@ -8,10 +9,10 @@ public interface PostStorage {
 
     Post getPostByTitle(String title);
 
-    void searchPostsByKeyword(String keyword);
+    void searchPostsByKeyword(String keyword) throws PostNotFoundException;
 
     void printAllPosts();
 
-    void printPostsByCategory(String category);
+    void printPostsByCategory(String category) throws PostNotFoundException;
 
 }
