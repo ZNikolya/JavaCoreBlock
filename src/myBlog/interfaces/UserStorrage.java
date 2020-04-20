@@ -1,4 +1,4 @@
-package myBlog.ifS;
+package myBlog.interfaces;
 
 import myBlog.exception.ModelNotFoundException;
 import myBlog.model.User;

@@ -1,7 +1,7 @@
 package myBlog;
 
 import myBlog.exception.ModelNotFoundException;
-import myBlog.ifS.Commands;
+import myBlog.interfaces.Commands;
 
 import myBlog.model.Post;
 import myBlog.model.Type;

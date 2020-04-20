@@ -1,4 +1,4 @@
-package myBlog.ifS;
+package myBlog.interfaces;
 
 public interface Commands {
 

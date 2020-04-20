@@ -1,9 +1,8 @@
 package myBlog.storage;
 
 import myBlog.exception.ModelNotFoundException;
-import myBlog.ifS.PostStorage;
+import myBlog.interfaces.PostStorage;
 import myBlog.model.Post;
-import myBlog.model.User;
 
 public class PostStorageimpl extends Throwable implements PostStorage {
     private Post[] posts;
