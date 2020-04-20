@@ -1,8 +1,12 @@
 package myBlog;
 
-import myBlog.exception.PostNotFoundException;
+import myBlog.exception.ModelNotFoundException;
 import myBlog.ifS.Commands;
+
 import myBlog.model.Post;
+import myBlog.model.Type;
+import myBlog.model.User;
+import myBlog.storage.UserStorageimpl;
 import myBlog.storage.PostStorageimpl;
 
 import java.util.Date;
@@ -10,65 +14,113 @@ import java.util.Scanner;
 
 public class RunBlog implements Commands {
 
-    static Scanner scanner = new Scanner(System.in);
-    static Post post = new Post();
-    static PostStorageimpl postStorageimpl = new PostStorageimpl();
+    private static final UserStorageimpl userStorageImpl = new UserStorageimpl();
+    private static final PostStorageimpl postStorageImpl = new PostStorageimpl();
+    private static final Scanner scanner = new Scanner(System.in);
+    private static  User user;
 
-    public static void main(String[] args) {
-        boolean search = true;
-        while (search) {
-            printCommands();
-            String commandStr = scanner.nextLine();
-            int command;
+    private static void main() {
+        boolean isRun = true;
+        while (isRun) {
+            Commands.printMainCommands();
+            int mainCommand;
             try {
-                command = Integer.parseInt(commandStr);
-            } catch (Exception e) {
-                command = -1;
+                mainCommand = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                mainCommand = -1;
             }
-
-            switch (command) {
-                case EXIT:
-                    search = false;
-                    System.out.println("Good by");
+            switch (mainCommand) {
+                case LOGIN:
+                    login();
                     break;
-                case ADD_POST:
-                    addPost();
-                    break;
-                case SEARCH_POST:
-                    searchpost();
+                case REGISTER:
+                    registor();
                     break;
                 case POST_BY_CATEGORY:
                     postByCategory();
                     break;
+                case SEARCH_POST:
+                    searchPost();
+                    break;
                 case ALL_POST:
-                    postStorageimpl.printAllPosts();
+                    postStorageImpl.printAllPosts();
+                    break;
+                case EXIT:
+                    isRun = false;
                     break;
                 default:
-                    System.out.println("Warning");
+                    System.out.println("Wrong command!");
+            }
+        }
+    }
+
+    private static void registor() {
+        try{
+            System.out.println("Please input User data: name,surname,email,password");
+            String userData = scanner.nextLine();
+            String[] userDataStr =  userData.split(",");
+            User userByEmail = userStorageImpl.getUserByEmail(userDataStr[2]);
+            if (userByEmail != null) {
+                System.out.println("Dublicate Data!!!");
+            }else {
+                User user = new User();
+                user.setName(userDataStr[0]);
+                user.setSurname(userDataStr[1]);
+                user.setEmail(userDataStr[2]);
+                user.setPassword(userDataStr[3]);
+                user.setType(Type.USER);
+                userStorageImpl.add(user);
+                System.out.println("Thank you, User was added");
             }
 
+        }catch (ArrayIndexOutOfBoundsException e) {
+            System.out.println("Invalid Data! please try again");
+            registor();
         }
     }
 
-    private static void postByCategory() {
-        System.out.println("Please input Post category");
+    private static void login() {
+        System.out.println("Please input email and password(email.password)");
+        String userData = scanner.nextLine();
+        String[] userDataStr = userData.split(",");
         try {
-            String category = scanner.nextLine();
-            postStorageimpl.printPostsByCategory(category);
-        }catch (PostNotFoundException e){
+            user = userStorageImpl.getUserByEMailAndPassword(userDataStr[0],userDataStr[1]);
+            if (user.getType() == Type.USER) {
+                loginuser();
+            }
+        }catch (ModelNotFoundException | ArrayIndexOutOfBoundsException e){
             System.out.println(e.getMessage());
-            postByCategory();
+            login();
         }
+
+
     }
 
-    private static void searchpost() {
-        System.out.println("Write the word you want to search for");
-        try {
-            String search = scanner.nextLine();
-            postStorageimpl.searchPostsByKeyword(search);
-        }catch (PostNotFoundException e){
-            System.out.println(e.getMessage());
-            searchpost();
+    private static void loginuser() {
+        boolean isRun = true;
+        while (isRun) {
+            Commands.printUserCommands();
+            int command;
+            try {
+                command = Integer.parseInt(scanner.nextLine());
+            } catch (NumberFormatException e) {
+                command = -1;
+            }
+            switch (command) {
+                case LOGOUT:
+                    isRun = false;
+                    main ();
+                    break;
+                case ADD_POST:
+                    addPost();
+                    break;
+                case SEARCH_ALL_POST:
+                    searchPost();
+                    break;
+                case PRINT_ALL_POST:
+                    postStorageImpl.printAllPosts();
+                    break;
+            }
         }
     }
 
@@ -77,7 +129,7 @@ public class RunBlog implements Commands {
             System.out.println("Please input Post data: title,text,category");
             String postDataStr = scanner.nextLine();
             String[] postData = postDataStr.split(",");
-            Post byTitle = postStorageimpl.getPostByTitle(postData[0]);
+            Post byTitle = postStorageImpl.getPostByTitle(postData[0]);
             if (byTitle != null) {
                 System.out.println("Duplicate Title");
                 addPost();
@@ -88,7 +140,8 @@ public class RunBlog implements Commands {
                 post.setText(postData[1]);
                 post.setCategory(postData[2]);
                 post.setCreatedData(date);
-                postStorageimpl.add(post);
+                post.setUser(user);
+                postStorageImpl.add(post);
                 System.out.println("Thank you, Post was added");
 
             }
@@ -96,13 +149,27 @@ public class RunBlog implements Commands {
             System.out.println("Invalid Data! please try again");
             addPost();
         }
+
+
     }
 
-    private static void printCommands() {
-        System.out.println("Please input " + EXIT + " for EXIT");
-        System.out.println("Please input " + ADD_POST + " for ADD_POST");
-        System.out.println("Please input " + SEARCH_POST + " for SEARCH_POST");
-        System.out.println("Please input " + POST_BY_CATEGORY + " for PRINT_POSTS_BY_CATEGORY");
-        System.out.println("Please input " + ALL_POST + " for PRINT_ALL_POSTS");
+    private static void searchPost() {
+        System.out.println("Write the word you want to search for");
+        String search = scanner.nextLine();
+        postStorageImpl.searchPostsByKeyword(search);
+    }
+
+    private static void postByCategory() {
+        System.out.println("Please input Post category");
+        try {
+            String category = scanner.nextLine();
+            postStorageImpl.printPostsByCategory(category);
+        }catch (ModelNotFoundException e){
+            System.out.println(e.getMessage());
+            postByCategory();
+        }
+    }
+    public static void main(String[] args) {
+        main();
     }
 }
