@@ -1,6 +1,6 @@
 package myBlog.model;
 
-
+import java.lang.String;
 public class User {
 
     private String name;
@@ -91,4 +91,5 @@ public class User {
                 ", surname='" + surname + '\'' +
                 '}';
     }
+
 }

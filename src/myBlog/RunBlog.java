@@ -2,20 +2,18 @@ package myBlog;
 
 import myBlog.exception.ModelNotFoundException;
 import myBlog.interfaces.Commands;
-
 import myBlog.model.Post;
 import myBlog.model.Type;
 import myBlog.model.User;
+import myBlog.storage.DataStorageImpl;
 import myBlog.storage.UserStorageimpl;
 import myBlog.storage.PostStorageimpl;
-
 import java.util.Date;
 import java.util.Scanner;
 
 public class RunBlog implements Commands {
 
-    private static final UserStorageimpl userStorageImpl = new UserStorageimpl();
-    private static final PostStorageimpl postStorageImpl = new PostStorageimpl();
+    private static final DataStorageImpl dataStorageImpl = new DataStorageImpl();
     private static final Scanner scanner = new Scanner(System.in);
     private static  User user;
 
@@ -43,7 +41,7 @@ public class RunBlog implements Commands {
                     searchPost();
                     break;
                 case ALL_POST:
-                    postStorageImpl.printAllPosts();
+                    dataStorageImpl.printAllPosts();
                     break;
                 case EXIT:
                     isRun = false;
@@ -59,7 +57,7 @@ public class RunBlog implements Commands {
             System.out.println("Please input User data: name,surname,email,password");
             String userData = scanner.nextLine();
             String[] userDataStr =  userData.split(",");
-            User userByEmail = userStorageImpl.getUserByEmail(userDataStr[2]);
+            User userByEmail = dataStorageImpl.getUserByEmail(userDataStr[2]);
             if (userByEmail != null) {
                 System.out.println("Dublicate Data!!!");
             }else {
@@ -69,11 +67,11 @@ public class RunBlog implements Commands {
                 user.setEmail(userDataStr[2]);
                 user.setPassword(userDataStr[3]);
                 user.setType(Type.USER);
-                userStorageImpl.add(user);
+                dataStorageImpl.addUser(user);
                 System.out.println("Thank you, User was added");
             }
 
-        }catch (ArrayIndexOutOfBoundsException e) {
+        }catch (ArrayIndexOutOfBoundsException | ModelNotFoundException e) {
             System.out.println("Invalid Data! please try again");
             registor();
         }
@@ -84,7 +82,7 @@ public class RunBlog implements Commands {
         String userData = scanner.nextLine();
         String[] userDataStr = userData.split(",");
         try {
-            user = userStorageImpl.getUserByEMailAndPassword(userDataStr[0],userDataStr[1]);
+            user = dataStorageImpl.getUserByEMailAndPassword(userDataStr[0],userDataStr[1]);
             if (user.getType() == Type.USER) {
                 loginuser();
             }
@@ -118,7 +116,7 @@ public class RunBlog implements Commands {
                     searchPost();
                     break;
                 case PRINT_ALL_POST:
-                    postStorageImpl.printAllPosts();
+                    dataStorageImpl.printAllPosts();
                     break;
             }
         }
@@ -129,7 +127,7 @@ public class RunBlog implements Commands {
             System.out.println("Please input Post data: title,text,category");
             String postDataStr = scanner.nextLine();
             String[] postData = postDataStr.split(",");
-            Post byTitle = postStorageImpl.getPostByTitle(postData[0]);
+            Post byTitle = dataStorageImpl.getPostByTitle(postData[0]);
             if (byTitle != null) {
                 System.out.println("Duplicate Title");
                 addPost();
@@ -141,32 +139,34 @@ public class RunBlog implements Commands {
                 post.setCategory(postData[2]);
                 post.setCreatedData(date);
                 post.setUser(user);
-                postStorageImpl.add(post);
+                dataStorageImpl.addPost(post);
                 System.out.println("Thank you, Post was added");
 
             }
-        } catch (ArrayIndexOutOfBoundsException e) {
+        } catch (ArrayIndexOutOfBoundsException | ModelNotFoundException e) {
             System.out.println("Invalid Data! please try again");
             addPost();
         }
 
 
     }
-
     private static void searchPost() {
         System.out.println("Write the word you want to search for");
         String search = scanner.nextLine();
-        postStorageImpl.searchPostsByKeyword(search);
+        try {
+            dataStorageImpl.searchPostsByKeyword(search);
+        } catch (ModelNotFoundException e) {
+            e.printStackTrace();
+        }
     }
 
     private static void postByCategory() {
         System.out.println("Please input Post category");
         try {
             String category = scanner.nextLine();
-            postStorageImpl.printPostsByCategory(category);
+            dataStorageImpl.printPostsByCategory(category);
         }catch (ModelNotFoundException e){
             System.out.println(e.getMessage());
-            postByCategory();
         }
     }
     public static void main(String[] args) {
