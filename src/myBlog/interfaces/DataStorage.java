@@ -3,7 +3,6 @@ package myBlog.interfaces;
 import myBlog.exception.ModelNotFoundException;
 import myBlog.model.Post;
 import myBlog.model.User;
-import myBlog.storage.PostStorageimpl;
 
 public interface DataStorage {
     //Users

@@ -6,8 +6,6 @@ import myBlog.model.Post;
 import myBlog.model.Type;
 import myBlog.model.User;
 import myBlog.storage.DataStorageImpl;
-import myBlog.storage.UserStorageimpl;
-import myBlog.storage.PostStorageimpl;
 import java.util.Date;
 import java.util.Scanner;
 
