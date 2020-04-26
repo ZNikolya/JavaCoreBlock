@@ -13,7 +13,7 @@ public interface DataStorage {
     //Posts
     Post getPostByTitle(String title) throws ModelNotFoundException;
 
-    void searchPostsByKeyword(String keyword) throws ModelNotFoundException, PostStorageimpl;
+    void searchPostsByKeyword(String keyword) throws ModelNotFoundException;
 
     void printAllPosts();
 
